@@ -1,6 +1,6 @@
 package com.dhyenyfer.todoapi.controller;
 
-import com.dhyenyfer.todoapi.model.User;
+import com.dhyenyfer.todoapi.entity.User;
 import com.dhyenyfer.todoapi.service.UserService;
 import org.springframework.web.bind.annotation.*;
 

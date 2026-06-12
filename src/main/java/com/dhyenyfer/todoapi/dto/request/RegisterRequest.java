@@ -1,4 +1,4 @@
-package com.dhyenyfer.todoapi.dto;
+package com.dhyenyfer.todoapi.dto.request;
 
 import com.dhyenyfer.todoapi.enums.RoleEnum;
 

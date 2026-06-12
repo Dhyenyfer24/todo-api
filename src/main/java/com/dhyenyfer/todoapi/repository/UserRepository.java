@@ -1,6 +1,6 @@
 package com.dhyenyfer.todoapi.repository;
 
-import com.dhyenyfer.todoapi.model.User;
+import com.dhyenyfer.todoapi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

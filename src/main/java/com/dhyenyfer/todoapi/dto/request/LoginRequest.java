@@ -1,4 +1,4 @@
-package com.dhyenyfer.todoapi.controller;
+package com.dhyenyfer.todoapi.dto.request;
 
 public class LoginRequest {
     private String email;

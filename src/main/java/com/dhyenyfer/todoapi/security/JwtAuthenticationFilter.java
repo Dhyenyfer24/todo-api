@@ -32,8 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        System.out.println("🔥 FILTER RODANDO");
-        System.out.println("🔥 Authorization: " + request.getHeader("Authorization"));
+        String requestURI = request.getRequestURI();
+
+        if (requestURI.startsWith("/auth/") || requestURI.contains("/swagger-ui")
+                || requestURI.contains("/v3/api-docs00")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -43,13 +48,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String username = jwtService.extractUsername(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            // 🔐 valida primeiro
+            if (!jwtService.isValid(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            // 👤 extrai usuário
+            String username = jwtService.extractUsername(token);
 
-            if (jwtService.isValid(token)) {
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
@@ -63,9 +75,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                System.out.println("✅ AUTENTICADO: " + username);
             }
+
+        } catch (Exception e) {
+            // ❗ evita quebrar request por token inválido
+            filterChain.doFilter(request, response);
+            return;
         }
 
         filterChain.doFilter(request, response);

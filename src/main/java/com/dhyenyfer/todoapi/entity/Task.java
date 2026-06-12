@@ -1,7 +1,7 @@
-package com.dhyenyfer.todoapi.model;
+package com.dhyenyfer.todoapi.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import com.dhyenyfer.todoapi.enums.TaskStatus;
 
 @Entity
 @Table(name = "tasks")
@@ -12,29 +12,25 @@ public class Task {
     private Long id;
 
     private String title;
-
     private String description;
+    private boolean completed;
 
-    private boolean completed = false;
-
-    private LocalDateTime creationDateTime;
-
-    private LocalDateTime deadlineDateTime;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Task() {
+    public TaskStatus getStatus() {
+        return status;
     }
 
-    @PrePersist
-    public void prePersist() {
-        this.creationDateTime = LocalDateTime.now();
-        this.completed = false;
+    public void setStatus(TaskStatus status) {
+        this.status = status;
     }
 
-    // GETTERS E SETTERS
+    @Enumerated (EnumType.STRING)
+    private TaskStatus status;
+
+    // getters e setters
 
     public Long getId() {
         return id;
@@ -68,22 +64,6 @@ public class Task {
         this.completed = completed;
     }
 
-    public LocalDateTime getCreationDateTime() {
-        return creationDateTime;
-    }
-
-    public void setCreationDateTime(LocalDateTime creationDateTime) {
-        this.creationDateTime = creationDateTime;
-    }
-
-    public LocalDateTime getDeadlineDateTime() {
-        return deadlineDateTime;
-    }
-
-    public void setDeadlineDateTime(LocalDateTime deadlineDateTime) {
-        this.deadlineDateTime = deadlineDateTime;
-    }
-
     public User getUser() {
         return user;
     }
@@ -91,4 +71,6 @@ public class Task {
     public void setUser(User user) {
         this.user = user;
     }
+
+
 }

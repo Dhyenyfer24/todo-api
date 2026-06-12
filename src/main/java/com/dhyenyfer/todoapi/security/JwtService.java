@@ -13,13 +13,14 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private final String SECRET = "mysecretkeymysecretkeymysecretkey12345mysecretkey";
+    // ⚠ ideal depois: mover pro application.properties
+    private final String SECRET = "mysecretkeymysecretkeymysecretkeymysecretkey123456";
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    // GERAR TOKEN
+    // 🔑 GERAR TOKEN
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -29,31 +30,32 @@ public class JwtService {
                 .compact();
     }
 
-    // VALIDAR TOKEN
+    // 🔍 EXTRACT USERNAME
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    // 🔐 VALIDAR TOKEN
     public boolean isValid(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
+            extractAllClaims(token);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    // PEGAR USERNAME DO TOKEN
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        Claims claims = Jwts.parserBuilder()
+    // 📦 EXTRAIR CLAIMS
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
 
+    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        final Claims claims = extractAllClaims(token);
         return resolver.apply(claims);
     }
 }

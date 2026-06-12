@@ -1,13 +1,11 @@
 package com.dhyenyfer.todoapi.controller;
-
-import com.dhyenyfer.todoapi.dto.TaskRequestDTO;
-import com.dhyenyfer.todoapi.dto.TaskResponseDTO;
-import com.dhyenyfer.todoapi.model.Task;
+import com.dhyenyfer.todoapi.dto.TaskResponse; // 💡 Import do seu DTO/Response
+import com.dhyenyfer.todoapi.dto.request.TaskRequest;
 import com.dhyenyfer.todoapi.service.TaskService;
-import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.dhyenyfer.todoapi.enums.TaskStatus;
 import java.util.List;
 
 @RestController
@@ -20,46 +18,31 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    // CREATE
+    // Criar uma Task
     @PostMapping
-    public ResponseEntity<TaskResponseDTO> create(@Valid @RequestBody TaskRequestDTO dto) {
-        return ResponseEntity.ok(taskService.create(dto));
+    public ResponseEntity<TaskResponse> create(@RequestBody TaskRequest dto) {
+        // O service agora entrega o TaskResponse perfeitamente mapeado
+        TaskResponse response = taskService.create(dto);
+
+        // Retorna HTTP 201 (Created) com o objeto limpo no corpo
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // LIST ALL
+    // Listar as Tasks do usuário logado
     @GetMapping
-    public ResponseEntity<List<TaskResponseDTO>> findAll() {
-        return ResponseEntity.ok(taskService.findAll());
-    }
+    public ResponseEntity<List<TaskResponse>> getMyTasks() {
+        List<TaskResponse> response = taskService.getMyTasks();
 
-    // FIND BY ID
-    @GetMapping("/{id}")
-    public ResponseEntity<TaskResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.findById(id));
+        // Retorna HTTP 200 (OK) com a lista limpa
+        return ResponseEntity.ok(response);
     }
-
-    // UPDATE
-    @PutMapping("/{id}")
-    public ResponseEntity<TaskResponseDTO> update(
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TaskResponse> updateStatus(
             @PathVariable Long id,
-            @Valid @RequestBody TaskRequestDTO dto) {
-        return ResponseEntity.ok(taskService.update(id, dto));
-    }
+            @RequestParam TaskStatus status
+    ) {
+        TaskResponse response = taskService.updateStatus(id, status);
 
-    // DELETE
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        taskService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{id}/complete")
-    public Task completeTask(@PathVariable Long id) {
-        return taskService.completeTask(id);
-    }
-
-    @GetMapping("/status")
-    public List<Task> findByCompleted(@RequestParam boolean completed) {
-        return taskService.findByCompleted(completed);
+        return ResponseEntity.ok(response);
     }
 }

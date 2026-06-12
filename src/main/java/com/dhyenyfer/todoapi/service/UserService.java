@@ -1,6 +1,6 @@
 package com.dhyenyfer.todoapi.service;
 
-import com.dhyenyfer.todoapi.model.User;
+import com.dhyenyfer.todoapi.entity.User;
 import com.dhyenyfer.todoapi.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

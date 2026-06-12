@@ -1,9 +1,10 @@
 package com.dhyenyfer.todoapi.controller;
 
-import com.dhyenyfer.todoapi.controller.LoginRequest;
-import com.dhyenyfer.todoapi.dto.RegisterRequest;
+import com.dhyenyfer.todoapi.dto.request.LoginRequest;
+import com.dhyenyfer.todoapi.dto.request.RegisterRequest;
 import com.dhyenyfer.todoapi.dto.TokenResponse;
-import com.dhyenyfer.todoapi.model.User;
+import com.dhyenyfer.todoapi.entity.User;
+import com.dhyenyfer.todoapi.enums.RoleEnum;
 import com.dhyenyfer.todoapi.repository.UserRepository;
 import com.dhyenyfer.todoapi.security.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -36,18 +37,21 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
 
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+        user.setRole(request.getRole() != null ? request.getRole() : RoleEnum.USER);
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("Usuário criado com sucesso!");
+        return ResponseEntity.ok("User created successfully!");
     }
 
-    // 🔑 LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
@@ -58,9 +62,7 @@ public class AuthController {
                 )
         );
 
-        // NÃO precisa cast de User
         String email = authentication.getName();
-
         String token = jwtService.generateToken(email);
 
         return ResponseEntity.ok(new TokenResponse(token));

@@ -1,9 +1,9 @@
-package com.dhyenyfer.todoapi.dto;
+package com.dhyenyfer.todoapi.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class TaskRequestDTO {
+public class TaskRequest {
 
     @NotBlank(message = "Title is required")
     private String title;

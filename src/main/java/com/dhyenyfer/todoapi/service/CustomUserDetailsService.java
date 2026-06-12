@@ -1,10 +1,10 @@
 package com.dhyenyfer.todoapi.service;
 
-import com.dhyenyfer.todoapi.model.User;
+import com.dhyenyfer.todoapi.entity.User;
 import com.dhyenyfer.todoapi.repository.UserRepository;
+import com.dhyenyfer.todoapi.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,9 +17,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) {
 
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new CustomUserDetails(user);
     }
 }
