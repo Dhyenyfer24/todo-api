@@ -77,7 +77,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void shoulUpdateTaskStatusSucessfully(){
+    void shouldUpdateTaskStatusSuccessfully() {
 
         User user = new User();
         user.setId(1L);
@@ -111,13 +111,13 @@ class TaskServiceTest {
         updatedTask.setStatus(TaskStatus.DONE);
         updatedTask.setUser(user);
 
-        when (taskRepository.findByIdAndUser(1L,user))
-                .thenReturn(Optional.of(updatedTask));
+        when(taskRepository.findByIdAndUser(1L, user))
+                .thenReturn(Optional.of(task));
 
         when(taskRepository.save(any(Task.class)))
                 .thenReturn(updatedTask);
 
-        TaskResponse response = taskService.updateStatus(1L,TaskStatus.DONE);
+        TaskResponse response = taskService.updateStatus(1L, TaskStatus.DONE);
 
         assertEquals(1L, response.getId());
         assertEquals("Study Spring", response.getTitle());
@@ -155,4 +155,83 @@ class TaskServiceTest {
                 () -> taskService.updateStatus(999L, TaskStatus.DONE)
         );
     }
+
+    @Test
+    void shouldReturnTaskByIdSuccessfully() {
+
+        User user = new User();
+        user.setId(1L);
+        user.setName("Luiza");
+        user.setEmail("Luiza@email.com");
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("Study Spring");
+        task.setDescription("Review Spring Security");
+        task.setCompleted(false);
+        task.setStatus(TaskStatus.TODO);
+        task.setUser(user);
+
+        when(taskRepository.findByIdAndUser(1L, user))
+                .thenReturn(Optional.of(task));
+
+        TaskResponse response = taskService.getById(1L);
+
+        assertEquals(1L, response.getId());
+        assertEquals("Study Spring", response.getTitle());
+        assertEquals("Review Spring Security", response.getDescription());
+        assertEquals(false, response.isCompleted());
+        assertEquals(TaskStatus.TODO, response.getStatus());
+
+        verify(taskRepository).findByIdAndUser(1L, user);
+    }
+
+    @Test
+    void shouldDeleteTaskSuccessfully() {
+
+
+        User user = new User();
+        user.setId(1L);
+        user.setName("Luiza");
+        user.setEmail("Luiza@email.com");
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("Study Spring");
+        task.setDescription("Review Spring Security");
+        task.setCompleted(false);
+        task.setStatus(TaskStatus.TODO);
+        task.setUser(user);
+
+        when(taskRepository.findByIdAndUser(1L, user))
+                .thenReturn(Optional.of(task));
+
+        taskService.delete(1L);
+
+        verify(taskRepository).findByIdAndUser(1L, user);
+        verify(taskRepository).delete(task);
+    }
+
 }
